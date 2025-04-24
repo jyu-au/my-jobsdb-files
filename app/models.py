@@ -1,0 +1,102 @@
+from app import db, login_manager
+from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
+
+# User roles
+class Role:
+    USER = 'user'
+    ADMIN = 'admin'
+
+class User(UserMixin, db.Model):
+    """User model for job seekers and admins"""
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, index=True)
+    email = db.Column(db.String(120), unique=True, index=True)
+    password_hash = db.Column(db.String(128))
+    role = db.Column(db.String(10), default=Role.USER)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    resumes = db.relationship('Resume', backref='user', lazy='dynamic')
+    applications = db.relationship('Application', backref='applicant', lazy='dynamic')
+    
+    def __init__(self, username, email, password, role=Role.USER):
+        self.username = username
+        self.email = email
+        self.password_hash = generate_password_hash(password)
+        self.role = role
+    
+    def check_password(self, password):
+        """Check if the provided password matches the stored hash"""
+        return check_password_hash(self.password_hash, password)
+    
+    def is_admin(self):
+        """Check if the user has admin role"""
+        return self.role == Role.ADMIN
+    
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+class Job(db.Model):
+    """Job posting model"""
+    __tablename__ = 'jobs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    requirements = db.Column(db.Text, nullable=False)
+    location = db.Column(db.String(100), nullable=False)
+    salary = db.Column(db.String(50), nullable=False)
+    contact_info = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    posted_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
+    # Relationships
+    applications = db.relationship('Application', backref='job', lazy='dynamic')
+    
+    def __repr__(self):
+        return f'<Job {self.title}>'
+
+class Resume(db.Model):
+    """Resume model for job seekers"""
+    __tablename__ = 'resumes'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    name = db.Column(db.String(64), nullable=False)
+    gender = db.Column(db.String(10), nullable=False)
+    age = db.Column(db.Integer, nullable=False)
+    education = db.Column(db.String(100), nullable=False)
+    contact = db.Column(db.String(100), nullable=False)
+    experience = db.Column(db.Text, nullable=False)
+    introduction = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    applications = db.relationship('Application', backref='resume', lazy='dynamic')
+    
+    def __repr__(self):
+        return f'<Resume {self.name}>'
+
+class Application(db.Model):
+    """Application model connecting users, jobs, and resumes"""
+    __tablename__ = 'applications'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    job_id = db.Column(db.Integer, db.ForeignKey('jobs.id'), nullable=False)
+    resume_id = db.Column(db.Integer, db.ForeignKey('resumes.id'), nullable=False)
+    status = db.Column(db.String(20), default='Pending')  # Pending, Reviewed, Rejected, Accepted
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<Application {self.id}>' 

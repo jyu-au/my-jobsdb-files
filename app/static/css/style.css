@@ -1,0 +1,60 @@
+/* Global styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+}
+
+/* Job card styles */
+.job-card {
+    transition: transform 0.2s;
+    height: 100%;
+}
+
+.job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Form styles */
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .jumbotron {
+        padding: 2rem 1rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .card-deck {
+        display: block;
+    }
+}
+
+/* Status badges */
+.status-pending {
+    background-color: #ffc107;
+}
+
+.status-reviewed {
+    background-color: #17a2b8;
+}
+
+.status-rejected {
+    background-color: #dc3545;
+}
+
+.status-accepted {
+    background-color: #28a745;
+} 
