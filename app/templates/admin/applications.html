@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Applications{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Manage Job Applications</h2>
+
+{% if applications %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Applicant</th>
+                    <th>Job Title</th>
+                    <th>Applied Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                    <tr>
+                        <td>{{ application.resume.name }}</td>
+                        <td>{{ application.job.title }}</td>
+                        <td>{{ application.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <span class="badge text-bg-{{ application.status|lower }}">{{ application.status }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('main.job_details', job_id=application.job_id) }}" class="btn btn-sm btn-outline-primary">View Job</a>
+                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewResumeModal{{ application.id }}">View Resume</button>
+                                <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#statusModal{{ application.id }}">Change Status</button>
+                            </div>
+                            
+                            <!-- View Resume Modal -->
+                            <div class="modal fade" id="viewResumeModal{{ application.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Resume: {{ application.resume.name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <dl class="row">
+                                                <dt class="col-sm-3">Name</dt>
+                                                <dd class="col-sm-9">{{ application.resume.name }}</dd>
+                                                
+                                                <dt class="col-sm-3">Gender</dt>
+                                                <dd class="col-sm-9">{{ application.resume.gender }}</dd>
+                                                
+                                                <dt class="col-sm-3">Age</dt>
+                                                <dd class="col-sm-9">{{ application.resume.age }}</dd>
+                                                
+                                                <dt class="col-sm-3">Education</dt>
+                                                <dd class="col-sm-9">{{ application.resume.education }}</dd>
+                                                
+                                                <dt class="col-sm-3">Contact</dt>
+                                                <dd class="col-sm-9">{{ application.resume.contact }}</dd>
+                                                
+                                                <dt class="col-sm-3">Experience</dt>
+                                                <dd class="col-sm-9">{{ application.resume.experience|nl2br }}</dd>
+                                                
+                                                <dt class="col-sm-3">Introduction</dt>
+                                                <dd class="col-sm-9">{{ application.resume.introduction|nl2br }}</dd>
+                                            </dl>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Change Status Modal -->
+                            <div class="modal fade" id="statusModal{{ application.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Update Application Status</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="{{ url_for('admin.update_application_status', application_id=application.id) }}" method="POST">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="status" class="form-label">Status</label>
+                                                    <select name="status" id="status" class="form-select">
+                                                        <option value="Pending" {% if application.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                                        <option value="Reviewed" {% if application.status == 'Reviewed' %}selected{% endif %}>Reviewed</option>
+                                                        <option value="Rejected" {% if application.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                                        <option value="Accepted" {% if application.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Update Status</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        No job applications available at the moment.
+    </div>
+{% endif %}
+{% endblock %} 

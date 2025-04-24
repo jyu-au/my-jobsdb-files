@@ -1,45 +1,252 @@
 {% extends "base.html" %}
 
-{% block title %}JobsDB Clone - Find Your Next Job{% endblock %}
+{% block title %}JobsDB - Find Your Next Job{% endblock %}
 
 {% block content %}
-<div class="jumbotron bg-light p-5 rounded mb-4">
-    <h1 class="display-4">Find Your Dream Job</h1>
-    <p class="lead">Browse thousands of job listings or post a job opening.</p>
-    <hr class="my-4">
-    <form action="{{ url_for('main.search') }}" method="get" class="row g-3">
-        <div class="col-md-4">
-            <input type="text" class="form-control" name="title" placeholder="Job Title">
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="display-4 fw-bold text-white mb-3">Find Your <span class="text-highlight">Dream Job</span></h1>
+        <p class="lead text-white mb-4">Search thousands of jobs from top companies and take the next step in your career</p>
+        
+        <div class="search-box bg-white p-4 rounded shadow-lg">
+            <form action="{{ url_for('main.search') }}" method="get" class="row g-3">
+                <div class="col-lg-5 col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0">
+                            <i class="fas fa-briefcase text-primary"></i>
+                        </span>
+                        <input type="text" class="form-control border-0 shadow-none" name="title" placeholder="Job Title or Keywords">
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                        </span>
+                        <input type="text" class="form-control border-0 shadow-none" name="location" placeholder="Location">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <button type="submit" class="btn btn-primary w-100 search-btn">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="col-md-4">
-            <input type="text" class="form-control" name="location" placeholder="Location">
-        </div>
-        <div class="col-md-4">
-            <button type="submit" class="btn btn-primary w-100">Search Jobs</button>
-        </div>
-    </form>
+    </div>
+    <div class="hero-overlay"></div>
 </div>
 
-<h2 class="mb-4">Latest Job Postings</h2>
-
-<div class="row">
-    {% for job in jobs %}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ job.title }}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">{{ job.location }} | {{ job.salary }}</h6>
-                    <p class="card-text">{{ job.description[:150] }}{% if job.description|length > 150 %}...{% endif %}</p>
+<!-- Categories Section -->
+<div class="container mt-5">
+    <div class="section-header text-center mb-5">
+        <h2 class="fw-bold">Popular <span class="text-primary">Categories</span></h2>
+        <p class="text-muted">Explore jobs by category to find your perfect match</p>
+    </div>
+    
+    <div class="row g-4 mb-5">
+        <div class="col-md-3 col-6">
+            <div class="category-card text-center p-4">
+                <div class="category-icon mb-3">
+                    <i class="fas fa-laptop-code fa-2x text-primary"></i>
                 </div>
-                <div class="card-footer bg-transparent border-top-0">
-                    <a href="{{ url_for('main.job_details', job_id=job.id) }}" class="btn btn-outline-primary">View Details</a>
+                <h5>Technology</h5>
+                <p class="text-muted small">450+ Jobs</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="category-card text-center p-4">
+                <div class="category-icon mb-3">
+                    <i class="fas fa-chart-line fa-2x text-success"></i>
+                </div>
+                <h5>Finance</h5>
+                <p class="text-muted small">320+ Jobs</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="category-card text-center p-4">
+                <div class="category-icon mb-3">
+                    <i class="fas fa-bullhorn fa-2x text-warning"></i>
+                </div>
+                <h5>Marketing</h5>
+                <p class="text-muted small">250+ Jobs</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="category-card text-center p-4">
+                <div class="category-icon mb-3">
+                    <i class="fas fa-hospital-user fa-2x text-danger"></i>
+                </div>
+                <h5>Healthcare</h5>
+                <p class="text-muted small">350+ Jobs</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Jobs Section -->
+<div class="container">
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Latest <span class="text-primary">Job Postings</span></h2>
+            <p class="text-muted">Discover fresh opportunities updated daily</p>
+        </div>
+        <a href="{{ url_for('main.search') }}" class="btn btn-outline-primary">
+            View All Jobs <i class="fas fa-arrow-right ms-2"></i>
+        </a>
+    </div>
+    
+    <div class="row">
+        {% for job in jobs %}
+            <div class="col-lg-6 mb-4">
+                <div class="job-card h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="job-company-logo bg-light rounded p-3">
+                                <i class="fas fa-building text-primary"></i>
+                            </div>
+                            <div class="job-type">
+                                <span class="badge bg-light text-primary px-3 py-2">Full-time</span>
+                            </div>
+                        </div>
+                        <h5 class="card-title mb-2 fw-bold">{{ job.title }}</h5>
+                        <p class="card-subtitle text-muted mb-3">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{ job.location }}
+                        </p>
+                        <p class="card-text mb-3">{{ job.description|truncate(120) }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="job-salary"><i class="fas fa-money-bill-wave me-2"></i>{{ job.salary }}</span>
+                            <a href="{{ url_for('main.job_details', job_id=job.id) }}" class="btn btn-outline-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No job listings available at the moment.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="container mt-5 mb-5">
+    <div class="section-header text-center mb-5">
+        <h2 class="fw-bold">How It <span class="text-primary">Works</span></h2>
+        <p class="text-muted">Three simple steps to start your job search journey</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="process-card text-center p-4">
+                <div class="process-icon rounded-circle mb-4 mx-auto d-flex align-items-center justify-content-center">
+                    <span class="process-number">1</span>
+                </div>
+                <h4>Create an Account</h4>
+                <p class="text-muted">Sign up for free and create your profile to start your job search journey.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="process-card text-center p-4">
+                <div class="process-icon rounded-circle mb-4 mx-auto d-flex align-items-center justify-content-center">
+                    <span class="process-number">2</span>
+                </div>
+                <h4>Build Your Resume</h4>
+                <p class="text-muted">Create a professional resume to showcase your skills and experience.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="process-card text-center p-4">
+                <div class="process-icon rounded-circle mb-4 mx-auto d-flex align-items-center justify-content-center">
+                    <span class="process-number">3</span>
+                </div>
+                <h4>Apply for Jobs</h4>
+                <p class="text-muted">Search for jobs that match your skills and apply with just a few clicks.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+            Get Started Now <i class="fas fa-arrow-right ms-2"></i>
+        </a>
+    </div>
+</div>
+
+<!-- Testimonials Section -->
+<div class="testimonials-section bg-light py-5 mt-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="fw-bold">Success <span class="text-primary">Stories</span></h2>
+            <p class="text-muted">From our happy job seekers and employers</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card h-100">
+                    <div class="card-body">
+                        <div class="testimonial-avatar mb-3">
+                            <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User" class="rounded-circle">
+                        </div>
+                        <h5>John Smith</h5>
+                        <p class="text-muted small">Software Engineer at TechCorp</p>
+                        <div class="rating text-warning mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"I found my dream job within a week of creating my profile. The platform is intuitive and made job hunting a breeze!"</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card h-100">
+                    <div class="card-body">
+                        <div class="testimonial-avatar mb-3">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="rounded-circle">
+                        </div>
+                        <h5>Sarah Johnson</h5>
+                        <p class="text-muted small">Marketing Manager at BrandX</p>
+                        <div class="rating text-warning mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="testimonial-text">"The platform helped me find candidates who perfectly matched our requirements. Highly recommended for employers!"</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card h-100">
+                    <div class="card-body">
+                        <div class="testimonial-avatar mb-3">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="rounded-circle">
+                        </div>
+                        <h5>Michael Wong</h5>
+                        <p class="text-muted small">Data Analyst at FinTech Inc</p>
+                        <div class="rating text-warning mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"The resume building tool was fantastic! It helped me create a professional resume that stood out to employers."</p>
+                    </div>
                 </div>
             </div>
         </div>
-    {% else %}
-        <div class="col-12">
-            <div class="alert alert-info">No job listings available at the moment.</div>
-        </div>
-    {% endfor %}
+    </div>
 </div>
 {% endblock %} 

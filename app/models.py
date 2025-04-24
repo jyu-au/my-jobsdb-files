@@ -40,6 +40,17 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+    def has_applied_to(self, job_id):
+        """Check if the user has already applied to a specific job"""
+        return Application.query.filter_by(
+            user_id=self.id,
+            job_id=job_id
+        ).first() is not None
+
+    def set_password(self, password):
+        """Set password for user"""
+        self.password_hash = generate_password_hash(password)
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -60,6 +71,7 @@ class Job(db.Model):
     
     # Relationships
     applications = db.relationship('Application', backref='job', lazy='dynamic')
+    poster_user = db.relationship('User', foreign_keys=[posted_by], backref='posted_jobs')
     
     def __repr__(self):
         return f'<Job {self.title}>'

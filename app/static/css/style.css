@@ -4,57 +4,732 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background-color: #f8f9fa;
+    color: #343a40;
 }
 
 .container {
     flex: 1;
+    padding-bottom: 30px;
 }
 
-/* Job card styles */
-.job-card {
-    transition: transform 0.2s;
-    height: 100%;
+/* Navigation bar */
+.navbar {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 30px !important;
 }
 
-.job-card:hover {
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: #0d6efd !important;
+}
+
+/* Home page */
+.jumbotron {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    padding: 3rem !important;
+    margin-bottom: 2rem !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.jumbotron h1 {
+    font-weight: 700;
+    color: #0d6efd;
+    margin-bottom: 1rem;
+}
+
+/* Job cards */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-/* Form styles */
-.form-container {
-    max-width: 800px;
-    margin: 0 auto;
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-weight: 600;
+}
+
+.card-title {
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+.card-subtitle {
+    color: #6c757d;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 5px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Forms */
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 5px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: none;
+}
+
+/* Status badges */
+.badge {
+    padding: 0.4em 0.8em;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.text-bg-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.text-bg-reviewed {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.text-bg-rejected {
+    background-color: #dc3545;
+    color: white;
+}
+
+.text-bg-accepted {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Tables */
+.table-responsive {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-top: none;
+}
+
+/* Footer */
+footer {
+    background-color: #343a40;
+    color: white;
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+footer a {
+    color: #ced4da;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: white;
+    text-decoration: underline;
 }
 
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
     .jumbotron {
-        padding: 2rem 1rem;
+        padding: 2rem 1rem !important;
     }
     
     h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     
-    .card-deck {
-        display: block;
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .btn {
+        padding: 0.375rem 1rem;
     }
 }
 
-/* Status badges */
-.status-pending {
-    background-color: #ffc107;
+/* 管理员仪表板样式 */
+.admin-header {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1rem;
 }
 
-.status-reviewed {
+.dashboard-card {
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.dashboard-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.dashboard-icon i {
+    font-size: 24px;
+    color: white;
+}
+
+.bg-primary {
+    background-color: #0d6efd;
+}
+
+.bg-success {
+    background-color: #28a745;
+}
+
+.bg-info {
     background-color: #17a2b8;
 }
 
-.status-rejected {
-    background-color: #dc3545;
+.bg-warning {
+    background-color: #ffc107;
 }
 
-.status-accepted {
+/* 表格美化 */
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* 搜索框样式 */
+.search-box {
+    padding: 2rem !important;
+    margin-bottom: 2rem;
+}
+
+.search-box .form-control {
+    height: 55px;
+    padding-left: 1rem;
+    font-size: 1rem;
+    border-right: 1px solid #eee !important;
+}
+
+.search-box .input-group-text {
+    padding-left: 1.5rem;
+    padding-right: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.search-btn {
+    height: 55px;
+    font-size: 1rem;
+}
+
+/* 按钮组样式 */
+.btn-group .btn {
+    border-radius: 4px;
+    margin: 0 2px;
+}
+
+/* Modern styles for home, login, and register pages */
+/* Add the following to your existing style.css file */
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    background-image: url('https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    height: 520px;
+    display: flex;
+    align-items: center;
+    padding: 2rem 0;
+    margin-top: -30px;
+    margin-bottom: 3rem;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.9) 0%, rgba(0, 0, 0, 0.7) 100%);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1140px;
+    padding: 0 15px;
+    margin: 0 auto;
+    color: white;
+}
+
+.text-highlight {
+    color: #ffdd57;
+    position: relative;
+    display: inline-block;
+}
+
+.text-highlight:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 10px;
+    background-color: rgba(255, 221, 87, 0.3);
+    bottom: 5px;
+    left: 0;
+    z-index: -1;
+}
+
+.search-box {
+    border-radius: 10px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.search-box .form-control {
+    height: 50px;
+    font-size: 1.1rem;
+}
+
+.search-box .form-control:focus {
+    box-shadow: none;
+}
+
+.search-box .input-group-text {
+    color: #0d6efd;
+}
+
+.search-btn {
+    height: 50px;
+    font-weight: 600;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+    transition: all 0.3s;
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(13, 110, 253, 0.4);
+}
+
+/* Category Cards */
+.category-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s;
+    height: 100%;
+    padding: 1.5rem !important;
+}
+
+.category-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.category-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: rgba(13, 110, 253, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+/* Job Cards */
+.job-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+    border: none;
+    padding: 0.5rem;
+}
+
+.job-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+.job-company-logo {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.job-company-logo i {
+    font-size: 1.5rem;
+}
+
+.job-type .badge {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+}
+
+.job-salary {
+    color: #28a745;
+    font-weight: 500;
+}
+
+/* Process Cards */
+.process-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s;
+    height: 100%;
+    position: relative;
+}
+
+.process-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.process-icon {
+    width: 80px;
+    height: 80px;
+    background-color: #0d6efd;
+    color: white;
+    font-size: 1.5rem;
+    position: relative;
+}
+
+.process-number {
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+
+/* Testimonial Cards */
+.testimonial-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    transition: all 0.3s;
+    text-align: center;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.testimonial-avatar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #0d6efd;
+    padding: 3px;
+}
+
+.testimonial-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.testimonial-text {
+    font-style: italic;
+    position: relative;
+    padding: 0 10px;
+}
+
+.testimonial-text:before,
+.testimonial-text:after {
+    content: '"';
+    font-size: 1.5rem;
+    color: #0d6efd;
+}
+
+/* Login & Register Styles */
+.login-container,
+.register-container {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.login-card,
+.register-card {
+    position: relative;
+    z-index: 1;
+}
+
+.login-card .card,
+.register-card .card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.login-form .form-control,
+.register-form .form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ced4da;
+    transition: all 0.3s;
+}
+
+.login-form .form-control:focus,
+.register-form .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.login-decoration,
+.register-decoration {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.decoration-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.login-decoration .decoration-circle:nth-child(1),
+.register-decoration .decoration-circle:nth-child(1) {
+    width: 150px;
+    height: 150px;
+    bottom: -75px;
+    left: -75px;
+}
+
+.login-decoration .decoration-circle:nth-child(2),
+.register-decoration .decoration-circle:nth-child(2) {
+    width: 100px;
+    height: 100px;
+    top: -50px;
+    right: -50px;
+}
+
+/* Section Styling */
+.section-header {
+    margin-bottom: 3rem;
+}
+
+.section-header h2 {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        height: auto;
+        padding: 5rem 0;
+    }
+    
+    .search-box {
+        margin-top: 2rem;
+    }
+    
+    .search-box .form-control {
+        height: 45px;
+    }
+    
+    .search-btn {
+        height: 45px;
+    }
+    
+    .section-header {
+        margin-bottom: 2rem;
+    }
+    
+    .process-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+    }
+    
+    .process-number {
+        font-size: 1.5rem;
+    }
+}
+
+/* 补充用户个人资料页面的样式 */
+.profile-container {
+    margin-top: 2rem;
+}
+
+.profile-header {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.profile-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: none;
+    transition: all 0.3s;
+}
+
+.profile-card:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.profile-avatar {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.profile-info p {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-info p:last-child {
+    border-bottom: none;
+}
+
+.resume-summary p {
+    margin-bottom: 0.5rem;
+}
+
+.empty-icon {
+    opacity: 0.4;
+}
+
+.applications-list .list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 1rem;
+    transition: all 0.2s;
+}
+
+.applications-list .list-group-item:first-child {
+    border-top: none;
+}
+
+.applications-list .list-group-item:last-child {
+    border-bottom: none;
+}
+
+.applications-list .list-group-item:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.text-bg-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.text-bg-reviewed {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.text-bg-rejected {
+    background-color: #dc3545;
+    color: white;
+}
+
+.text-bg-accepted {
     background-color: #28a745;
+    color: white;
+}
+
+/* 职位卡片样式优化 */
+.job-card .card-body {
+    padding: 1.5rem;
+}
+
+/* 类别卡片优化 */
+.category-card {
+    padding: 1.5rem !important;
+}
+
+.category-icon {
+    width: 80px;
+    height: 80px;
 } 

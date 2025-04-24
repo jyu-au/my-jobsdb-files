@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Jobs{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Manage Jobs</h2>
+    <a href="{{ url_for('admin.create_job') }}" class="btn btn-success">Post New Job</a>
+</div>
+
+{% if jobs %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Salary</th>
+                    <th>Posted Date</th>
+                    <th>Applications</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                    <tr>
+                        <td>{{ job.title }}</td>
+                        <td>{{ job.location }}</td>
+                        <td>{{ job.salary }}</td>
+                        <td>{{ job.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ job.applications.count() }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ url_for('main.job_details', job_id=job.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                <a href="{{ url_for('admin.edit_job', job_id=job.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ job.id }}">Delete</button>
+                            </div>
+                            
+                            <!-- Delete Modal -->
+                            <div class="modal fade" id="deleteModal{{ job.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ job.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteModalLabel{{ job.id }}">Confirm Deletion</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to delete the job "{{ job.title }}"? This action cannot be undone.
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{{ url_for('admin.delete_job', job_id=job.id) }}" method="POST">
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        No job postings available. <a href="{{ url_for('admin.create_job') }}">Create your first job posting</a>.
+    </div>
+{% endif %}
+{% endblock %} 

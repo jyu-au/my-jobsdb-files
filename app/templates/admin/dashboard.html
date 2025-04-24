@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="admin-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h2>
+        <div class="date-filter d-flex align-items-center">
+            <span class="me-2">Filter by date:</span>
+            <input type="text" id="date-range" class="form-control form-control-sm" placeholder="Select date range">
+        </div>
+    </div>
+    <p class="text-muted">Welcome back, {{ current_user.username }}! Here's your system overview.</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center h-100 dashboard-card">
+            <div class="card-body">
+                <div class="dashboard-icon bg-primary">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h3 class="card-title mt-3">{{ job_count }}</h3>
+                <p class="card-text">Total Jobs</p>
+                <a href="{{ url_for('admin.manage_jobs') }}" class="btn btn-sm btn-primary">Manage Jobs</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-center h-100 dashboard-card">
+            <div class="card-body">
+                <div class="dashboard-icon bg-success">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3 class="card-title mt-3">{{ application_count }}</h3>
+                <p class="card-text">Total Applications</p>
+                <a href="{{ url_for('admin.manage_applications') }}" class="btn btn-sm btn-success">Manage Applications</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-center h-100 dashboard-card">
+            <div class="card-body">
+                <div class="dashboard-icon bg-info">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="card-title mt-3">{{ user_count }}</h3>
+                <p class="card-text">Registered Users</p>
+                <a href="{{ url_for('admin.manage_users') }}" class="btn btn-sm btn-info">Manage Users</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-center h-100 dashboard-card">
+            <div class="card-body">
+                <div class="dashboard-icon bg-warning">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="card-title mt-3">{{ accepted_count }}</h3>
+                <p class="card-text">Accepted Applications</p>
+                <a href="{{ url_for('admin.manage_applications') }}?status=Accepted" class="btn btn-sm btn-warning">View Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8 mb-3">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Application Trends</h5>
+            </div>
+            <div class="card-body">
+                <div style="height: 250px;">
+                    <canvas id="applicationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Application Status Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div style="height: 250px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Job Postings</h5>
+                <a href="{{ url_for('admin.create_job') }}" class="btn btn-sm btn-success">
+                    <i class="fas fa-plus-circle me-1"></i>Post New Job
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Location</th>
+                                <th>Salary</th>
+                                <th>Posted Date</th>
+                                <th>Applications</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in recent_jobs %}
+                                <tr>
+                                    <td>{{ job.title }}</td>
+                                    <td>{{ job.location }}</td>
+                                    <td>{{ job.salary }}</td>
+                                    <td>{{ job.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ job.applications.count() }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin.edit_job', job_id=job.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No job postings available</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date picker
+    flatpickr("#date-range", {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        defaultDate: [new Date().setDate(new Date().getDate() - 30), new Date()]
+    });
+    
+    // Application trend chart
+    const appCtx = document.getElementById('applicationsChart').getContext('2d');
+    const applicationsChart = new Chart(appCtx, {
+        type: 'line',
+        data: {
+            labels: ['30 days ago', '25 days ago', '20 days ago', '15 days ago', '10 days ago', '5 days ago', 'Today'],
+            datasets: [{
+                label: 'Number of Applications',
+                data: {{ application_data|safe }},
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+    
+    // Status distribution chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusChart = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Reviewed', 'Rejected', 'Accepted'],
+            datasets: [{
+                label: 'Application Status',
+                data: {{ status_data|safe }},
+                backgroundColor: [
+                    '#ffc107',
+                    '#17a2b8',
+                    '#dc3545',
+                    '#28a745'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+});
+</script>
+{% endblock %} 

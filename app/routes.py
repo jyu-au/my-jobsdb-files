@@ -2,11 +2,12 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.models import User, Job, Resume, Application, Role
-from app.forms import LoginForm, RegistrationForm, JobForm, ResumeForm, JobSearchForm
+from app.forms import LoginForm, RegistrationForm, JobForm, ResumeForm, JobSearchForm, EditProfileForm, ChangePasswordForm
 from werkzeug.utils import secure_filename
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import or_
+import json
 
 # Blueprint definitions
 main_bp = Blueprint('main', __name__)
@@ -51,7 +52,15 @@ def search():
 def job_details(job_id):
     """View details of a specific job"""
     job = Job.query.get_or_404(job_id)
-    return render_template('job_details.html', job=job)
+    
+    # 获取相似职位（基于相同位置或相似标题）
+    similar_jobs = Job.query.filter(
+        (Job.location == job.location) | 
+        (Job.title.like(f'%{job.title.split()[0]}%')),
+        Job.id != job.id
+    ).limit(3).all()
+    
+    return render_template('job_details.html', job=job, similar_jobs=similar_jobs)
 
 # Authentication routes
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -105,40 +114,50 @@ def register():
 @login_required
 def profile():
     """User profile page"""
-    return render_template('user/profile.html')
+    from app.models import Application  # 导入 Application 模型
+    
+    return render_template('user/profile.html', Application=Application)
 
-@user_bp.route('/resume', methods=['GET', 'POST'])
+@user_bp.route('/resume')
+@login_required
+def resume():
+    """View or edit resume"""
+    user_resume = Resume.query.filter_by(user_id=current_user.id).first()
+    form = ResumeForm()
+    
+    if user_resume:
+        form.name.data = user_resume.name
+        form.gender.data = user_resume.gender
+        form.age.data = user_resume.age
+        form.education.data = user_resume.education
+        form.contact.data = user_resume.contact
+        form.experience.data = user_resume.experience
+        form.introduction.data = user_resume.introduction
+    
+    return render_template('user/resume.html', form=form, resume=user_resume)
+
+@user_bp.route('/resume/create', methods=['POST'])
 @login_required
 def create_resume():
     """Create or update resume"""
-    resume = Resume.query.filter_by(user_id=current_user.id).first()
     form = ResumeForm()
-    
-    if resume:
-        # Pre-fill form with existing resume data
-        if request.method == 'GET':
-            form.name.data = resume.name
-            form.gender.data = resume.gender
-            form.age.data = resume.age
-            form.education.data = resume.education
-            form.contact.data = resume.contact
-            form.experience.data = resume.experience
-            form.introduction.data = resume.introduction
-    
     if form.validate_on_submit():
-        if resume:
+        user_resume = Resume.query.filter_by(user_id=current_user.id).first()
+        
+        if user_resume:
             # Update existing resume
-            resume.name = form.name.data
-            resume.gender = form.gender.data
-            resume.age = form.age.data
-            resume.education = form.education.data
-            resume.contact = form.contact.data
-            resume.experience = form.experience.data
-            resume.introduction = form.introduction.data
-            resume.updated_at = datetime.utcnow()
+            user_resume.name = form.name.data
+            user_resume.gender = form.gender.data
+            user_resume.age = form.age.data
+            user_resume.education = form.education.data
+            user_resume.contact = form.contact.data
+            user_resume.experience = form.experience.data
+            user_resume.introduction = form.introduction.data
+            user_resume.updated_at = datetime.utcnow()
+            flash('Your resume has been updated!')
         else:
             # Create new resume
-            resume = Resume(
+            new_resume = Resume(
                 user_id=current_user.id,
                 name=form.name.data,
                 gender=form.gender.data,
@@ -148,13 +167,13 @@ def create_resume():
                 experience=form.experience.data,
                 introduction=form.introduction.data
             )
-            db.session.add(resume)
+            db.session.add(new_resume)
+            flash('Your resume has been created!')
         
         db.session.commit()
-        flash('Resume saved successfully!')
-        return redirect(url_for('user.resume'))
+        return redirect(url_for('user.profile'))
     
-    return render_template('user/resume.html', form=form, resume=resume)
+    return redirect(url_for('user.resume'))
 
 @user_bp.route('/apply/<int:job_id>', methods=['GET', 'POST'])
 @login_required
@@ -196,6 +215,49 @@ def applications():
     applications = Application.query.filter_by(user_id=current_user.id).order_by(Application.created_at.desc()).all()
     return render_template('user/applications.html', applications=applications)
 
+@user_bp.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    """Edit user profile"""
+    form = EditProfileForm(obj=current_user)
+    
+    if form.validate_on_submit():
+        # 检查用户名是否已被使用
+        if form.username.data != current_user.username and User.query.filter_by(username=form.username.data).first():
+            flash('This username is already taken.')
+            return render_template('user/edit_profile.html', form=form)
+        
+        # 更新用户信息
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        db.session.commit()
+        
+        flash('Your profile has been updated.')
+        return redirect(url_for('user.profile'))
+    
+    return render_template('user/edit_profile.html', form=form)
+
+@user_bp.route('/profile/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    """Change user password"""
+    form = ChangePasswordForm()
+    
+    if form.validate_on_submit():
+        # 验证当前密码
+        if not current_user.check_password(form.current_password.data):
+            flash('Current password is incorrect.')
+            return render_template('user/change_password.html', form=form)
+        
+        # 更新密码
+        current_user.set_password(form.new_password.data)
+        db.session.commit()
+        
+        flash('Your password has been updated.')
+        return redirect(url_for('user.profile'))
+    
+    return render_template('user/change_password.html', form=form)
+
 # Admin routes
 @admin_bp.route('/dashboard')
 @login_required
@@ -205,14 +267,43 @@ def dashboard():
         flash('Access denied. Admin privileges required.')
         return redirect(url_for('main.index'))
     
+    # 获取基本统计数据
     job_count = Job.query.count()
+    user_count = User.query.count()
     application_count = Application.query.count()
-    user_count = User.query.filter_by(role=Role.USER).count()
+    accepted_count = Application.query.filter_by(status='Accepted').count()
     
-    return render_template('admin/dashboard.html', 
-                          job_count=job_count,
-                          application_count=application_count,
-                          user_count=user_count)
+    # 获取图表数据
+    # 申请趋势数据 - 近30天的申请数量
+    application_data = []
+    for i in range(7, 0, -1):
+        date = datetime.utcnow() - timedelta(days=i*5)
+        count = Application.query.filter(
+            Application.created_at >= date.replace(hour=0, minute=0, second=0),
+            Application.created_at <= date.replace(hour=23, minute=59, second=59)
+        ).count()
+        application_data.append(count)
+    
+    # 状态分布数据
+    pending_count = Application.query.filter_by(status='Pending').count()
+    reviewed_count = Application.query.filter_by(status='Reviewed').count()
+    rejected_count = Application.query.filter_by(status='Rejected').count()
+    
+    status_data = [pending_count, reviewed_count, rejected_count, accepted_count]
+    
+    # 获取最近的职位发布
+    recent_jobs = Job.query.order_by(Job.created_at.desc()).limit(5).all()
+    
+    return render_template(
+        'admin/dashboard.html',
+        job_count=job_count,
+        user_count=user_count,
+        application_count=application_count,
+        accepted_count=accepted_count,
+        application_data=json.dumps(application_data),
+        status_data=json.dumps(status_data),
+        recent_jobs=recent_jobs
+    )
 
 @admin_bp.route('/jobs')
 @login_required
@@ -329,4 +420,85 @@ def update_application_status(application_id):
         db.session.commit()
         flash('Application status updated!')
     
-    return redirect(url_for('admin.manage_applications')) 
+    return redirect(url_for('admin.manage_applications'))
+
+@admin_bp.route('/users')
+@login_required
+def manage_users():
+    """Manage users"""
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('main.index'))
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    
+    # 处理搜索查询
+    search_query = request.args.get('search', '')
+    if search_query:
+        users = User.query.filter(
+            or_(
+                User.username.ilike(f'%{search_query}%'),
+                User.email.ilike(f'%{search_query}%')
+            )
+        ).order_by(User.created_at.desc())
+    else:
+        users = User.query.order_by(User.created_at.desc())
+    
+    pagination = users.paginate(page=page, per_page=per_page)
+    users = pagination.items
+    
+    return render_template('admin/users.html', users=users, pagination=pagination)
+
+@admin_bp.route('/users/delete/<int:user_id>', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    """Delete a user"""
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('main.index'))
+    
+    user = User.query.get_or_404(user_id)
+    
+    # 不允许删除自己
+    if user.id == current_user.id:
+        flash('您不能删除自己的账户。')
+        return redirect(url_for('admin.manage_users'))
+    
+    # 删除用户的申请
+    Application.query.filter_by(user_id=user_id).delete()
+    
+    # 删除用户的简历
+    Resume.query.filter_by(user_id=user_id).delete()
+    
+    # 删除用户
+    db.session.delete(user)
+    db.session.commit()
+    
+    flash(f'用户 {user.username} 已成功删除。')
+    return redirect(url_for('admin.manage_users'))
+
+@admin_bp.route('/users/toggle-role/<int:user_id>', methods=['POST'])
+@login_required
+def toggle_role(user_id):
+    """Toggle user role between user and admin"""
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('main.index'))
+    
+    user = User.query.get_or_404(user_id)
+    
+    # 不允许修改自己的角色
+    if user.id == current_user.id:
+        flash('您不能修改自己的角色。')
+        return redirect(url_for('admin.manage_users'))
+    
+    if user.role == Role.USER:
+        user.role = Role.ADMIN
+        flash(f'用户 {user.username} 已提升为管理员。')
+    else:
+        user.role = Role.USER
+        flash(f'管理员 {user.username} 已降级为普通用户。')
+    
+    db.session.commit()
+    return redirect(url_for('admin.manage_users')) 

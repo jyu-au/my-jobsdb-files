@@ -33,4 +33,11 @@ def create_app(config_class=Config):
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
     
+    @app.template_filter('nl2br')
+    def nl2br(value):
+        """Convert newlines to HTML line breaks."""
+        if value:
+            return value.replace('\n', '<br>')
+        return value
+    
     return app 

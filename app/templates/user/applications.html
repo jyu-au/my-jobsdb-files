@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}My Applications{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">My Job Applications</h2>
+
+{% if applications %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Status</th>
+                    <th>Applied Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                    <tr>
+                        <td>{{ application.job.title }}</td>
+                        <td>{{ application.job.contact_info }}</td>
+                        <td>
+                            <span class="badge text-bg-{{ application.status|lower }}">{{ application.status }}</span>
+                        </td>
+                        <td>{{ application.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <a href="{{ url_for('main.job_details', job_id=application.job_id) }}" class="btn btn-sm btn-outline-primary">View Job</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        You haven't applied to any jobs yet. <a href="{{ url_for('main.search') }}">Find jobs to apply</a>
+    </div>
+{% endif %}
+{% endblock %} 
