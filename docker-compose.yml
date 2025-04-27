@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - SQLALCHEMY_DATABASE_URI=mysql+pymysql://jobsite_user:jobsite_password@db/jobsite_db
+    volumes:
+      - ./app:/app/app
+    command: >
+      bash -c "
+        flask db upgrade &&
+        gunicorn --bind 0.0.0.0:5000 run:app
+      "
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+      - MYSQL_DATABASE=jobsite_db
+      - MYSQL_USER=jobsite_user
+      - MYSQL_PASSWORD=jobsite_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  mysql_data: 
