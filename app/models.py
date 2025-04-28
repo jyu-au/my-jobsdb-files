@@ -113,3 +113,79 @@ class Application(db.Model):
     
     def __repr__(self):
         return f'<Application {self.id}>' 
+    
+class JobSkill(db.Model):
+    __tablename__ = 'job_skills'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer, db.ForeignKey('jobs.id'))
+    skill_name = db.Column(db.String(50), nullable=False)
+    importance = db.Column(db.String(20))  # 'required', 'preferred', 'plus' 
+
+    
+
+class Language(db.Model):
+    __tablename__ = 'languages'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    proficiency_level = db.Column(db.String(20), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Language {self.name}>'
+    
+class SystemLog(db.Model):
+    __tablename__ = 'system_logs'
+    id = db.Column(db.Integer, primary_key=True)
+    event_type = db.Column(db.String(50), nullable=False)  # 如login/error/config_change
+    description = db.Column(db.Text)
+    ip_address = db.Column(db.String(45))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Feedback(db.Model):
+    __tablename__ = 'feedbacks'
+    id = db.Column(db.Integer, primary_key=True)
+    contact = db.Column(db.String(100))  # 可选联系方式
+    content = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(20))  # bug/suggestion/compliment
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class NotificationTemplate(db.Model):
+    __tablename__ = 'notification_templates'
+    id = db.Column(db.Integer, primary_key=True)
+    template_name = db.Column(db.String(50), unique=True)  # application_received/status_update
+    subject = db.Column(db.String(200))
+    content = db.Column(db.Text, nullable=False)
+
+class Config(db.Model):
+    __tablename__ = 'configs'
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(50), unique=True)  # maintenance_mode/max_login_attempts
+    value = db.Column(db.String(200))
+    description = db.Column(db.String(255))
+
+class StaticContent(db.Model):
+    __tablename__ = 'static_contents'
+    id = db.Column(db.Integer, primary_key=True)
+    page_name = db.Column(db.String(50))  # about/terms/privacy
+    title = db.Column(db.String(100))
+    body = db.Column(db.Text, nullable=False)
+
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), unique=True)  # IT/Finance/Engineering
+    color = db.Column(db.String(7))  # HEX颜色码
+
+class Country(db.Model):
+    __tablename__ = 'countries'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    code = db.Column(db.String(2))  # ISO代码
+    phone_code = db.Column(db.String(5))
+
+class Industry(db.Model):
+    __tablename__ = 'industries'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)  # 科技/金融/医疗
+    description = db.Column(db.String(255))

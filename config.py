@@ -6,7 +6,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard-to-guess-string'
     
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:admin@localhost/jobsite_db'
+    SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI = f'sqlite:///apps_db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Upload folder for resumes
@@ -14,3 +14,5 @@ class Config:
     
     # Allowed extensions for resume uploads
     ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'} 
+
+    
