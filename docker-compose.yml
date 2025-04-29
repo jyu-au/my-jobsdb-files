@@ -1,36 +1,34 @@
 version: '3.8'
 
 services:
-  web:
+  web1:
     build: .
-    restart: always
     ports:
       - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://admin:password@db:5432/jobsdb
     depends_on:
       - db
+
+  web2:
+    build: .
+    ports:
+      - "5001:5000"
     environment:
-      - SQLALCHEMY_DATABASE_URI=mysql+pymysql://jobsite_user:jobsite_password@db/jobsite_db
-    volumes:
-      - ./app:/app/app
-    command: >
-      bash -c "
-        flask db upgrade &&
-        gunicorn --bind 0.0.0.0:5000 run:app
-      "
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://admin:password@db:5432/jobsdb
+    depends_on:
+      - db
 
   db:
-    image: mysql:8.0
-    restart: always
+    image: postgres:13
     environment:
-      - MYSQL_ROOT_PASSWORD=admin
-      - MYSQL_DATABASE=jobsite_db
-      - MYSQL_USER=jobsite_user
-      - MYSQL_PASSWORD=jobsite_password
-    ports:
-      - "3306:3306"
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=jobsdb
     volumes:
-      - mysql_data:/var/lib/mysql
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  mysql_data: 
+  postgres_data:
