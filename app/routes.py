@@ -22,6 +22,21 @@ def index():
     jobs = Job.query.order_by(Job.created_at.desc()).limit(10).all()
     return render_template('home.html', jobs=jobs)
 
+@main_bp.route('/feedback', methods=['GET', 'POST'])
+def feedback():
+    form = FeedbackForm()
+    if form.validate_on_submit():
+        feedback = Feedback(
+            contact=form.contact.data,
+            content=form.content.data,
+            category=form.category.data
+        )
+        db.session.add(feedback)
+        db.session.commit()
+        flash('Thank you for your feedback!')
+        return redirect(url_for('main.index'))
+    return render_template('feedback.html', form=form)
+
 @main_bp.route('/search', methods=['GET', 'POST'])
 def search():
     """Search for jobs"""
@@ -314,6 +329,29 @@ def manage_jobs():
     jobs = Job.query.order_by(Job.created_at.desc()).all()
     return render_template('admin/jobs.html', jobs=jobs)
 
+@admin_bp.route('/static-content', methods=['GET', 'POST'])
+@login_required
+def manage_static_content():
+    if not current_user.is_admin():
+        flash('Admin access required')
+        return redirect(url_for('main.index'))
+    
+    form = StaticContentForm()
+    if form.validate_on_submit():
+        content = StaticContent(
+            page_name=form.page_name.data,
+            title=form.title.data,
+            body=form.body.data
+        )
+        db.session.add(content)
+        db.session.commit()
+        flash('Static content added successfully')
+        return redirect(url_for('admin.manage_static_content'))
+    
+    contents = StaticContent.query.all()
+    return render_template('admin/static_content.html', form=form, contents=contents)
+
+
 @admin_bp.route('/jobs/create', methods=['GET', 'POST'])
 @login_required
 def create_job():
@@ -522,3 +560,120 @@ def user_applications(user_id):
         'user_id': user.id,
         'applications': applications
     }) 
+
+@admin_bp.route('/skills', methods=['GET', 'POST'])
+@login_required
+def manage_skills():
+    """Manage job skills"""
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('main.index'))
+    
+    form = JobSkillForm()
+    
+    # 处理表单提交
+    if form.validate_on_submit():
+        skill = JobSkill(
+            skill_name=form.skill_name.data,
+            importance=form.importance.data
+        )
+        db.session.add(skill)
+        db.session.commit()
+        flash('Skill added successfully!')
+        return redirect(url_for('admin.manage_skills'))
+    
+    # 获取所有技能显示
+    skills = JobSkill.query.order_by(JobSkill.skill_name).all()
+    return render_template('admin/skills.html', form=form, skills=skills)
+    
+
+    @admin_bp.route('/skills/edit/<int:skill_id>', methods=['GET', 'POST'])
+@login_required
+def edit_skill(skill_id):
+    """Edit a skill"""
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('main.index'))
+    
+    skill = JobSkill.query.get_or_404(skill_id)
+    form = JobSkillForm(obj=skill)
+    
+    if form.validate_on_submit():
+        skill.skill_name = form.skill_name.data
+        skill.importance = form.importance.data
+        db.session.commit()
+        flash('Skill updated successfully!')
+        return redirect(url_for('admin.manage_skills'))
+    
+    return render_template('admin/edit_skill.html', form=form, skill=skill)
+
+@admin_bp.route('/skills/delete/<int:skill_id>', methods=['POST'])
+@login_required
+def delete_skill(skill_id):
+    """Delete a skill"""
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('main.index'))
+    
+    skill = JobSkill.query.get_or_404(skill_id)
+    db.session.delete(skill)
+    db.session.commit()
+    flash('Skill deleted successfully!')
+    return redirect(url_for('admin.manage_skills'))
+
+@admin_bp.route('/languages', methods=['GET', 'POST'])
+@login_required
+def manage_languages():
+    """Manage languages"""
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('main.index'))
+    
+    form = LanguageForm()
+    
+    if form.validate_on_submit():
+        language = Language(
+            name=form.name.data,
+            proficiency_level=form.proficiency_level.data
+        )
+        db.session.add(language)
+        db.session.commit()
+        flash('Language added successfully!')
+        return redirect(url_for('admin.manage_languages'))
+    
+    languages = Language.query.order_by(Language.name).all()
+    return render_template('admin/languages.html', form=form, languages=languages)
+
+@admin_bp.route('/languages/edit/<int:language_id>', methods=['GET', 'POST'])
+@login_required
+def edit_language(language_id):
+    """Edit a language"""
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('main.index'))
+    
+    language = Language.query.get_or_404(language_id)
+    form = LanguageForm(obj=language)
+    
+    if form.validate_on_submit():
+        language.name = form.name.data
+        language.proficiency_level = form.proficiency_level.data
+        db.session.commit()
+        flash('Language updated successfully!')
+        return redirect(url_for('admin.manage_languages'))
+    
+    return render_template('admin/edit_language.html', form=form, language=language)
+
+@admin_bp.route('/languages/delete/<int:language_id>', methods=['POST'])
+@login_required
+def delete_language(language_id):
+    """Delete a language"""
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('main.index'))
+    
+    language = Language.query.get_or_404(language_id)
+    db.session.delete(language)
+    db.session.commit()
+    flash('Language deleted successfully!')
+    return redirect(url_for('admin.manage_languages'))

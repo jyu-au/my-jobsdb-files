@@ -68,6 +68,11 @@ class Job(db.Model):
     contact_info = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     posted_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    required_skills = db.relationship('JobSkill', backref='job_skills', lazy='dynamic')
+    preferred_languages = db.relationship('Language', secondary='job_languages', backref='jobs')
+    skills = db.relationship('JobSkill', backref='job', lazy='dynamic')
+    languages = db.relationship('Language', backref='job', lazy='dynamic')
+    tags = db.relationship('Tag', secondary='job_tags', backref='jobs')
     
     # Relationships
     applications = db.relationship('Application', backref='job', lazy='dynamic')
@@ -91,7 +96,10 @@ class Resume(db.Model):
     introduction = db.Column(db.Text(16777215), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+    job_languages = db.Table('job_languages',
+    db.Column('job_id', db.Integer, db.ForeignKey('jobs.id'), primary_key=True),
+    db.Column('language_id', db.Integer, db.ForeignKey('languages.id'), primary_key=True)
+    )
     # Relationships
     applications = db.relationship('Application', backref='resume', lazy='dynamic')
     
@@ -189,3 +197,14 @@ class Industry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)  # 科技/金融/医疗
     description = db.Column(db.String(255))
+
+class Job(db.Model):
+    # ... 原有字段
+    skills = db.relationship('JobSkill', backref='job', lazy='dynamic')
+    languages = db.relationship('Language', backref='job', lazy='dynamic')
+    tags = db.relationship('Tag', secondary='job_tags', backref='jobs')
+
+class JobTag(db.Model):
+    __tablename__ = 'job_tags'
+    job_id = db.Column(db.Integer, db.ForeignKey('jobs.id'), primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), primary_key=True)

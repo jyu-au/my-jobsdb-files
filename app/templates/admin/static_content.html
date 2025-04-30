@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h2>Manage Static Content</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.page_name.label }}
+        {{ form.page_name(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.title.label }}
+        {{ form.title(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.body.label }}
+        {{ form.body(class="form-control", rows=10) }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+
+<table class="table mt-4">
+    <thead>
+        <tr>
+            <th>Page Name</th>
+            <th>Title</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for content in contents %}
+        <tr>
+            <td>{{ content.page_name }}</td>
+            <td>{{ content.title }}</td>
+            <td>
+                <a href="{{ url_for('admin.edit_static_content', content_id=content.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <form action="{{ url_for('admin.delete_static_content', content_id=content.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
